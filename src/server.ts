@@ -5,11 +5,18 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import { Client } from 'pg';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
+const databaseUrl =
+  process.env['DATABASE_URL'] ||
+  process.env['PG_CONNECTION_STRING'] ||
+  'postgres://USUARIO:PASSWORD@localhost:5432/planejamentoja';
+
+app.use(express.json());
 const angularApp = new AngularNodeAppEngine();
 
 /**
@@ -23,6 +30,45 @@ const angularApp = new AngularNodeAppEngine();
  * });
  * ```
  */
+
+/**
+ * API endpoint para login no banco Postgres.
+ * Preencha a string de conexão manualmente via DATABASE_URL ou PG_CONNECTION_STRING.
+ */
+app.post('/api/login', async (req, res) => {
+  const { email, senha } = req.body as { email?: string; senha?: string };
+
+  if (!email || !senha) {
+    return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
+  }
+
+  const client = new Client({ connectionString: databaseUrl });
+
+  try {
+    await client.connect();
+
+    const query = `
+      SELECT email
+      FROM usuarios
+      WHERE email = $1
+        AND senha = $2
+      LIMIT 1
+    `;
+
+    const result = await client.query(query, [email, senha]);
+
+    if (result.rowCount === 0) {
+      return res.status(401).json({ error: 'Credenciais inválidas.' });
+    }
+
+    return res.json({ ok: true, email: result.rows[0].email });
+  } catch (error) {
+    console.error('Erro ao consultar Postgres:', error);
+    return res.status(500).json({ error: 'Erro interno ao validar as credenciais.' });
+  } finally {
+    await client.end();
+  }
+});
 
 /**
  * Serve static files from /browser
