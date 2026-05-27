@@ -1,22 +1,46 @@
+import 'dotenv/config';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
-import express from 'express';
+import express, { Request } from 'express';
+import session from 'express-session';
 import { Client } from 'pg';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
+type SessionRequest = Request & {
+  session?: {
+    usuarioId?: number;
+  };
+};
+
 const app = express();
 const databaseUrl =
-  process.env['DATABASE_URL'] ||
-  process.env['PG_CONNECTION_STRING'] ||
-  'postgres://USUARIO:PASSWORD@localhost:5432/planejamentoja';
+  process.env['DATABASE_URL'] || process.env['PG_CONNECTION_STRING'];
+
+if (!databaseUrl) {
+  throw new Error(
+    'DATABASE_URL ou PG_CONNECTION_STRING não está definida. Defina no .env ou no ambiente.',
+  );
+}
 
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env['SESSION_SECRET'] || 'planejamentoja-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      sameSite: 'lax',
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  }),
+);
 const angularApp = new AngularNodeAppEngine();
 
 /**
@@ -35,7 +59,7 @@ const angularApp = new AngularNodeAppEngine();
  * API endpoint para login no banco Postgres.
  * Preencha a string de conexão manualmente via DATABASE_URL ou PG_CONNECTION_STRING.
  */
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', async (req: SessionRequest, res) => {
   const { email, senha } = req.body as { email?: string; senha?: string };
 
   if (!email || !senha) {
@@ -48,7 +72,7 @@ app.post('/api/login', async (req, res) => {
     await client.connect();
 
     const query = `
-      SELECT email
+      SELECT usuario_id, email
       FROM usuarios
       WHERE email = $1
         AND senha = $2
@@ -61,10 +85,71 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
 
-    return res.json({ ok: true, email: result.rows[0].email });
+    const user = result.rows[0];
+    if (!req.session) {
+      return res.status(500).json({ error: 'Falha ao criar sessão.' });
+    }
+
+    req.session.usuarioId = user.usuario_id;
+    return res.json({ ok: true, email: user.email, usuarioId: user.usuario_id });
   } catch (error) {
     console.error('Erro ao consultar Postgres:', error);
     return res.status(500).json({ error: 'Erro interno ao validar as credenciais.' });
+  } finally {
+    await client.end();
+  }
+});
+
+app.get('/api/fluxo', async (req: SessionRequest, res) => {
+  const usuarioId = req.session?.usuarioId;
+
+  if (!usuarioId) {
+    return res.status(401).json({ error: 'Sessão não autenticada.' });
+  }
+
+  const entradaSaida = req.query['entrada_saida'] as string | undefined;
+  const data = req.query['data'] as string | undefined;
+  const descricao = req.query['descricao'] as string | undefined;
+
+  const values: Array<string | number> = [usuarioId];
+  let filters = ' WHERE usuario_id = $1';
+  let counter = 2;
+
+  if (entradaSaida === '0' || entradaSaida === '1') {
+    filters += ` AND entrada_saida = $${counter}`;
+    values.push(Number(entradaSaida));
+    counter += 1;
+  }
+
+  if (data) {
+    filters += ` AND "data" = $${counter}`;
+    values.push(data);
+    counter += 1;
+  }
+
+  if (descricao) {
+    filters += ` AND descricao ILIKE $${counter}`;
+    values.push(`%${descricao}%`);
+    counter += 1;
+  }
+
+  const client = new Client({ connectionString: databaseUrl });
+
+  try {
+    await client.connect();
+
+    const query = `
+      SELECT fluxo_id, entrada_saida, "data", valor, descricao
+      FROM fluxo
+      ${filters}
+      ORDER BY "data" DESC, fluxo_id DESC
+    `;
+
+    const result = await client.query(query, values);
+    return res.json({ ok: true, fluxo: result.rows });
+  } catch (error) {
+    console.error('Erro ao consultar fluxo:', error);
+    return res.status(500).json({ error: 'Erro interno ao buscar o extrato.' });
   } finally {
     await client.end();
   }

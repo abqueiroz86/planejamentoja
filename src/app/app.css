@@ -16,7 +16,8 @@
 }
 
 .login-card {
-  width: min(100%, 420px);
+  width: 100%;
+  max-width: 1180px;
   background: #ffffff;
   border: 1px solid rgba(37, 61, 44, 0.12);
   border-radius: 28px;
@@ -86,7 +87,8 @@
   box-shadow: 0 0 0 4px rgba(104, 186, 127, 0.16);
 }
 
-.login-form button {
+.login-form button,
+.secondary-button {
   width: 100%;
   border: none;
   border-radius: 999px;
@@ -99,7 +101,14 @@
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.login-form button:hover {
+.secondary-button {
+  width: auto;
+  padding: 0.85rem 1.2rem;
+  background: #253D2C;
+}
+
+.login-form button:hover,
+.secondary-button:hover {
   background: #57a66a;
   transform: translateY(-1px);
 }
@@ -116,6 +125,217 @@
   color: #506954;
   font-size: 0.92rem;
   line-height: 1.6;
+}
+
+.extract-card {
+  padding-bottom: 1.5rem;
+}
+
+.extract-brand .brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.extract-brand .eyebrow {
+  margin-bottom: 0.35rem;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-box {
+  text-align: right;
+}
+
+.extract-brand .subtle {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #4f6a55;
+}
+
+.extract-brand strong {
+  display: block;
+  font-size: 0.84rem;
+  color: #253D2C;
+  font-weight: 700;
+}
+
+.secondary-button {
+  width: auto;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.secondary-button:hover {
+  background: #57a66a;
+  transform: translateY(-1px);
+}
+
+.filter-panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.filter-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.filter-field label {
+  font-size: 0.92rem;
+}
+
+.filter-field.full-width {
+  grid-column: auto;
+}
+
+.filter-field label {
+  color: #253D2C;
+  font-weight: 600;
+}
+
+.filter-field input,
+.filter-field select {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(37, 61, 44, 0.18);
+  background: #F5FFF4;
+  padding: 0.7rem 0.9rem;
+  color: #253D2C;
+  font-size: 0.95rem;
+}
+
+.login-form button,
+.secondary-button {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  background: #68BA7F;
+  color: #ffffff;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.extract-table-wrapper {
+  overflow-x: auto;
+}
+
+.extract-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.extract-table th,
+.extract-table td {
+  padding: 1rem 1.1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(37, 61, 44, 0.08);
+}
+
+.extract-table th {
+  color: #253D2C;
+  font-weight: 700;
+  background: #F5FFF4;
+}
+
+.extract-table tbody tr:hover {
+  background: rgba(104, 186, 127, 0.08);
+}
+
+.extract-table td.entrada {
+  color: #1f7e45;
+  font-weight: 700;
+}
+
+.extract-table td.saida {
+  color: #b02e2e;
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #4f6a55;
+  background: #f6fff5;
+  border-radius: 20px;
+  border: 1px solid rgba(37, 61, 44, 0.1);
+}
+
+@media (max-width: 900px) {
+  .filter-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-field.full-width {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .extract-table thead {
+    display: none;
+  }
+
+  .extract-table,
+  .extract-table tbody,
+  .extract-table tr,
+  .extract-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .extract-table tr {
+    margin-bottom: 1rem;
+    border-radius: 20px;
+    background: #F5FFF4;
+    padding: 1rem;
+    border: 1px solid rgba(37, 61, 44, 0.08);
+  }
+
+  .extract-table td {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(37, 61, 44, 0.08);
+  }
+
+  .extract-table td:last-child {
+    border-bottom: none;
+  }
+
+  .extract-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: #253D2C;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .login-card,
+  .extract-card {
+    padding: 1.6rem;
+  }
+
+  .extract-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .secondary-button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 500px) {
