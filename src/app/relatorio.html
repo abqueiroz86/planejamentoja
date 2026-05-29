@@ -69,6 +69,22 @@
               class="pie-slice"
               [class.highlighted]="isLegendHighlighted(item.label)"
             />
+            <g *ngIf="item.percentage > 5" [attr.class]="'label-group ' + (isLegendHighlighted(item.label) ? 'highlighted' : '')">
+              <text
+                [attr.x]="getLabelPosition(item.startAngle, item.endAngle).x"
+                [attr.y]="getLabelPosition(item.startAngle, item.endAngle).y - 8"
+                class="slice-percentage"
+              >
+                {{ item.percentage.toFixed(0) }}%
+              </text>
+              <text
+                [attr.x]="getLabelPosition(item.startAngle, item.endAngle).x"
+                [attr.y]="getLabelPosition(item.startAngle, item.endAngle).y + 8"
+                class="slice-label"
+              >
+                {{ item.label.length > 12 ? (item.label | slice:0:12) + '...' : item.label }}
+              </text>
+            </g>
           </g>
         </svg>
       </div>

@@ -201,6 +201,19 @@ export class RelatorioComponent implements OnInit {
     return `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
   }
 
+  protected getLabelPosition(startAngle: number, endAngle: number): { x: number; y: number } {
+    const midAngle = (startAngle + endAngle) / 2;
+    const midRad = (midAngle * Math.PI) / 180;
+    const radius = 55;
+    const cx = 100;
+    const cy = 100;
+
+    return {
+      x: cx + radius * Math.cos(midRad),
+      y: cy + radius * Math.sin(midRad),
+    };
+  }
+
   protected formatTipo(value: number) {
     return value === 0 ? 'Entrada' : 'Saída';
   }
