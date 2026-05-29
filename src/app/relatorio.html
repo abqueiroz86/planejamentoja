@@ -1,0 +1,105 @@
+<main class="relatorio-page">
+  <section class="relatorio-card" aria-labelledby="relatorio-title">
+    <div class="brand relatorio-brand">
+      <div class="brand-row">
+        <div>
+          <span class="eyebrow">Planejamento Já!</span>
+          <h1 id="relatorio-title">Relatório de movimentações</h1>
+        </div>
+        <div class="user-actions">
+          <div class="user-box">
+            <p class="subtle">Usuário</p>
+            <strong>{{ email() }}</strong>
+          </div>
+          <button class="secondary-button" type="button" (click)="goToExtrato()">
+            Voltar ao Extrato
+          </button>
+          <button class="secondary-button" type="button" (click)="logout()">Sair</button>
+        </div>
+      </div>
+      <p class="subtitle">
+        Visualize um resumo de suas movimentações agrupadas por descrição com gráfico interativo.
+      </p>
+    </div>
+
+    <div class="filter-panel">
+      <div class="filter-field">
+        <label for="filter-type">Tipo</label>
+        <select
+          id="filter-type"
+          [value]="filterEntradaSaida()"
+          (change)="filterEntradaSaida.set($any($event.target).value); applyFilters()"
+        >
+          <option value="">Todos</option>
+          <option value="0">Entrada</option>
+          <option value="1">Saída</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="filter-mes-ano">Mês/Ano</label>
+        <input
+          id="filter-mes-ano"
+          type="month"
+          [value]="filterMesAno()"
+          (change)="filterMesAno.set($any($event.target).value); applyFilters()"
+        />
+      </div>
+
+      <div class="filter-field">
+        <label for="filter-description">Descrição</label>
+        <input
+          id="filter-description"
+          type="text"
+          placeholder="Buscar descrição"
+          [value]="filterDescricao()"
+          (input)="filterDescricao.set($any($event.target).value); applyFilters()"
+        />
+      </div>
+    </div>
+
+    <div class="relatorio-content">
+      <div class="chart-container" *ngIf="chartData().length > 0">
+        <svg class="pie-chart" viewBox="0 0 200 200">
+          <g *ngFor="let item of chartData(); let i = index">
+            <path
+              [attr.d]="getArcPath(100, 100, 80, item.startAngle, item.endAngle)"
+              [attr.fill]="item.color"
+              [attr.opacity]="isSliceHighlighted(item.label) ? 1 : 0.4"
+              class="pie-slice"
+              [class.highlighted]="isLegendHighlighted(item.label)"
+            />
+          </g>
+        </svg>
+      </div>
+
+      <div class="legend-container">
+        <div class="legend-header">
+          <h3>Resumo por Descrição</h3>
+          <p class="total-value">Total: {{ formatValor(totalValue()) }}</p>
+        </div>
+        <div class="legend-list">
+          <div
+            *ngFor="let item of chartData()"
+            class="legend-item"
+            [class.highlighted]="isLegendHighlighted(item.label)"
+            (click)="toggleLegendHighlight(item.label)"
+          >
+            <div class="legend-color" [style.background-color]="item.color"></div>
+            <div class="legend-details">
+              <p class="legend-label">{{ item.label }}</p>
+              <p class="legend-value">{{ formatValor(item.value) }}</p>
+              <p class="legend-percentage">{{ item.percentage.toFixed(1) }}%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="chartData().length === 0">
+      <p>Nenhum registro encontrado. Ajuste os filtros para ver resultados.</p>
+    </div>
+
+    <div class="status-message">{{ statusMessage() }}</div>
+  </section>
+</main>
