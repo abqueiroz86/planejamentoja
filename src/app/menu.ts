@@ -56,9 +56,9 @@ import { Router } from '@angular/router';
                     (click)="goToMovimentacoes()"
                     class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
                   >
-                    Movimentações
+                    Resumo por descrição
                   </button>
-                  <button
+                  <!-- <button
                     (click)="toggleSubmenu(); closeMobileMenu()"
                     class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
                   >
@@ -70,7 +70,7 @@ import { Router } from '@angular/router';
                     class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-sm"
                   >
                     Configurações do Relatório
-                  </button>
+                  </button> -->
                 </div>
               </div>
             </div>

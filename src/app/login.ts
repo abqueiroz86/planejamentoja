@@ -7,31 +7,75 @@ import { Router } from "@angular/router";
   selector: "app-login",
   styleUrl: './login.css',
   template: `
-  <main class="login-page" *ngIf="!loggedIn()">
-  <section class="login-card" aria-labelledby="login-title">
-    <div class="brand">
-      <span class="eyebrow">Planejamento Já!</span>
-      <h1 id="login-title">Acesso ao painel de planejamento</h1>
-      <p class="subtitle">Tela de login moderna e séria para entrar no seu ambiente de metas, tarefas e agenda.</p>
+<main class="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-emerald-900/10">
+  <section class="py-8 px-4 sm:px-6 lg:px-8 min-h-screen flex items-center justify-center" *ngIf="!loggedIn()">
+    <div class="mx-auto w-full max-w-md">
+      <!-- Card Container -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+        <!-- Header -->
+        <div class="mb-8 text-center">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+            Planejamento Já!
+          </div>
+          <h1 id="login-title" class="text-3xl font-bold text-gray-900 mb-2">
+            Acesso ao Painel
+          </h1>
+          <p class="text-gray-600 text-sm">
+            Digite suas credenciais para continuar
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form class="space-y-4" (submit)="login($event, emailInput.value, passwordInput.value)" novalidate>
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-semibold text-gray-700">
+              Email
+            </label>
+            <input
+              id="email"
+              #emailInput
+              type="email"
+              placeholder="seu@email.com"
+              autocomplete="email"
+              required
+              class="w-full px-4 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label for="password" class="block text-sm font-semibold text-gray-700">
+              Senha
+            </label>
+            <input
+              id="password"
+              #passwordInput
+              type="password"
+              placeholder="Sua senha"
+              autocomplete="current-password"
+              required
+              class="w-full px-4 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full px-4 py-2.5 text-white font-semibold bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors duration-200 mt-6"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <!-- Status Message -->
+        <div *ngIf="statusMessage()" class="mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm font-medium">
+          {{ statusMessage() }}
+        </div>
+
+        <!-- Footer -->
+        <p class="mt-6 text-center text-xs text-gray-600">
+          Aproveite o acesso seguro ao seu ambiente de planejamento
+        </p>
+      </div>
     </div>
-
-    <form class="login-form" (submit)="login($event, emailInput.value, passwordInput.value)" novalidate>
-      <div>
-        <label for="email">Email</label>
-        <input id="email" #emailInput type="email" placeholder="seu@email.com" autocomplete="email" required />
-      </div>
-
-      <div>
-        <label for="password">Senha</label>
-        <input id="password" #passwordInput type="password" placeholder="Senha" autocomplete="current-password" required />
-      </div>
-
-      <button type="submit">Entrar</button>
-    </form>
-
-    <div class="status-message">{{ statusMessage() }}</div>
-
-    <p class="footer-note">Aproveite o acesso rápido e seguro com a identidade visual do Planejamento Já!.</p>
   </section>
 </main>
   `,
