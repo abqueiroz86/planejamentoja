@@ -1,0 +1,131 @@
+:host {
+  display: block;
+  font-family: Inter, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+/* Login page styles */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: radial-gradient(circle at top, rgba(104, 186, 127, 0.24), transparent 28%),
+    linear-gradient(180deg, #F8FFF7 0%, #253D2C 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 1180px;
+  background: #ffffff;
+  border: 1px solid rgba(37, 61, 44, 0.12);
+  border-radius: 28px;
+  box-shadow: 0 26px 80px rgba(37, 61, 44, 0.12);
+  padding: 2.5rem;
+}
+
+.brand {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  background: #CFFFDC;
+  color: #253D2C;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.login-card h1 {
+  margin: 0;
+  font-size: clamp(2rem, 2.4vw, 2.4rem);
+  line-height: 1.05;
+  color: #253D2C;
+}
+
+.subtitle {
+  margin: 0;
+  color: #4f6a55;
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.login-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.login-form label {
+  display: block;
+  color: #253D2C;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+}
+
+.login-form input {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(37, 61, 44, 0.18);
+  background: #F5FFF4;
+  padding: 1rem 1rem;
+  color: #253D2C;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: #68BA7F;
+  box-shadow: 0 0 0 4px rgba(104, 186, 127, 0.16);
+}
+
+.login-form button {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  background: #68BA7F;
+  color: #ffffff;
+  padding: 1rem 1.15rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.login-form button:hover {
+  background: #57a66a;
+  transform: translateY(-1px);
+}
+
+.status-message {
+  margin-top: 1rem;
+  color: #253D2C;
+  font-size: 0.95rem;
+  min-height: 1.3rem;
+}
+
+.footer-note {
+  margin: 1.75rem 0 0;
+  color: #506954;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .login-card {
+    padding: 1.6rem;
+  }
+
+  .login-form {
+    gap: 1rem;
+  }
+}

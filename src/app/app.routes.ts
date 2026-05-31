@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { RelatorioComponent } from './relatorio';
 import { ExtratoComponent } from './extrato';
+import { LoginComponent } from './login';
 
 export const routes: Routes = [
   {
@@ -8,7 +9,11 @@ export const routes: Routes = [
     component: RelatorioComponent,
   },
   {
-    path: '',
+    path: 'extrato',
     component: ExtratoComponent,
+  },
+  {
+    path: '',
+    component: LoginComponent,
   },
 ];

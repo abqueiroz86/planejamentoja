@@ -1,118 +1,148 @@
-<main class="login-page" *ngIf="!loggedIn()">
-  <section class="login-card" aria-labelledby="login-title">
-    <div class="brand">
-      <span class="eyebrow">Planejamento Já!</span>
-      <h1 id="login-title">Acesso ao painel de planejamento</h1>
-      <p class="subtitle">Tela de login moderna e séria para entrar no seu ambiente de metas, tarefas e agenda.</p>
-    </div>
+<main class="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-emerald-900/10">
+  <!-- Menu Component -->
+  <app-menu></app-menu>
 
-    <form class="login-form" (submit)="login($event, emailInput.value, passwordInput.value)" novalidate>
-      <div>
-        <label for="email">Email</label>
-        <input id="email" #emailInput type="email" placeholder="seu@email.com" autocomplete="email" required />
-      </div>
-
-      <div>
-        <label for="password">Senha</label>
-        <input id="password" #passwordInput type="password" placeholder="Senha" autocomplete="current-password" required />
-      </div>
-
-      <button type="submit">Entrar</button>
-    </form>
-
-    <div class="status-message">{{ statusMessage() }}</div>
-
-    <p class="footer-note">Aproveite o acesso rápido e seguro com a identidade visual do Planejamento Já!.</p>
-  </section>
-</main>
-
-<main class="login-page" *ngIf="loggedIn()">
-  <section class="login-card extract-card" aria-labelledby="extract-title">
-    <div class="brand extract-brand">
-      <div class="brand-row">
-        <div>
-          <span class="eyebrow">Planejamento Já!</span>
-          <h1 id="extract-title">Extrato financeiro</h1>
+  <!-- Main Content -->
+  <section class="py-8 px-4 sm:px-6 lg:px-8" aria-labelledby="extract-title">
+    <div class="mx-auto max-w-7xl">
+      <!-- Header Section -->
+      <div class="mb-8">
+        <div class="mb-6">
+          <h1 id="extract-title" class="text-3xl sm:text-4xl font-bold text-gray-900">
+            Extrato Financeiro
+          </h1>
         </div>
-        <div class="user-actions">
-          <div class="user-box">
-            <p class="subtle">Usuário</p>
-            <strong>{{ email() }}</strong>
-          </div>
-          <button class="secondary-button" type="button" (click)="goToRelatorio()">Relatório</button>
-          <button class="secondary-button" type="button" (click)="logout()">Sair</button>
-        </div>
-      </div>
-      <p class="subtitle">Visualize suas entradas e saídas com filtros rápidos e clareza total.</p>
-    </div>
-
-    <div class="filter-panel">
-      <div class="filter-field">
-        <label for="filter-type">Tipo</label>
-        <select
-          id="filter-type"
-          [value]="filterEntradaSaida()"
-          (change)="filterEntradaSaida.set($any($event.target).value); applyFilters()"
-        >
-          <option value="">Todos</option>
-          <option value="0">Entrada</option>
-          <option value="1">Saída</option>
-        </select>
+        
+        <p class="text-gray-600 text-base leading-relaxed">
+          Visualize suas entradas e saídas com filtros rápidos e clareza total.
+        </p>
       </div>
 
-      <div class="filter-field">
-        <label for="filter-date">Data</label>
-        <input
-          id="filter-date"
-          type="date"
-          [value]="filterData()"
-          (change)="filterData.set($any($event.target).value); applyFilters()"
-        />
-      </div>
-
-      <div class="filter-field">
-        <label for="filter-description">Descrição</label>
-        <input
-          id="filter-description"
-          type="text"
-          placeholder="Buscar descrição"
-          [value]="filterDescricao()"
-          (input)="filterDescricao.set($any($event.target).value); applyFilters()"
-        />
-      </div>
-    </div>
-
-    <div class="extract-table-wrapper">
-      <table class="extract-table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Tipo</th>
-            <th>Descrição</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of fluxo()">
-            <td data-label="Data">{{ formatDate(item.data) }}</td>
-            <td data-label="Tipo">{{ formatTipo(item.entrada_saida) }}</td>
-            <td data-label="Descrição">{{ item.descricao }}</td>
-            <td
-              data-label="Valor"
-              [class.entrada]="item.entrada_saida === 0"
-              [class.saida]="item.entrada_saida === 1"
+      <!-- Filter Panel -->
+      <div class="mb-8 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <label for="filter-type" class="block text-sm font-semibold text-gray-700">
+              Tipo
+            </label>
+            <select
+              id="filter-type"
+              [value]="filterEntradaSaida()"
+              (change)="filterEntradaSaida.set($any($event.target).value); applyFilters()"
+              class="w-full px-4 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
             >
-              {{ formatValor(item.valor) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <option value="">Todos</option>
+              <option value="0">Entrada</option>
+              <option value="1">Saída</option>
+            </select>
+          </div>
 
-      <div class="empty-state" *ngIf="fluxo().length === 0">
-        Nenhum registro encontrado. Ajuste os filtros para ver resultados.
+          <div class="space-y-2">
+            <label for="filter-date" class="block text-sm font-semibold text-gray-700">
+              Data
+            </label>
+            <input
+              id="filter-date"
+              type="date"
+              [value]="filterData()"
+              (change)="filterData.set($any($event.target).value); applyFilters()"
+              class="w-full px-4 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label for="filter-description" class="block text-sm font-semibold text-gray-700">
+              Descrição
+            </label>
+            <input
+              id="filter-description"
+              type="text"
+              placeholder="Buscar descrição..."
+              [value]="filterDescricao()"
+              (input)="filterDescricao.set($any($event.target).value); applyFilters()"
+              class="w-full px-4 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <div *ngIf="fluxo().length > 0" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <!-- Desktop Table -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Data</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Descrição</th>
+                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">Valor</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr *ngFor="let item of fluxo()" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 text-sm text-gray-900">{{ formatDate(item.data) }}</td>
+                <td class="px-6 py-4 text-sm">
+                  <span
+                    [class]="item.entrada_saida === 0 ? 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800' : 'px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800'"
+                  >
+                    {{ formatTipo(item.entrada_saida) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ item.descricao }}</td>
+                <td class="px-6 py-4 text-sm text-right font-semibold" [class]="item.entrada_saida === 0 ? 'text-emerald-600' : 'text-red-600'">
+                  {{ formatValor(item.valor) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="md:hidden space-y-4 p-4">
+          <div *ngFor="let item of fluxo()" class="border border-gray-200 rounded-lg p-4">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <p class="text-xs font-medium text-gray-600">Data</p>
+                <p class="text-sm font-semibold text-gray-900">{{ formatDate(item.data) }}</p>
+              </div>
+              <span
+                [class]="item.entrada_saida === 0 ? 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800' : 'px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800'"
+              >
+                {{ formatTipo(item.entrada_saida) }}
+              </span>
+            </div>
+            <div class="mb-3">
+              <p class="text-xs font-medium text-gray-600">Descrição</p>
+              <p class="text-sm text-gray-900">{{ item.descricao }}</p>
+            </div>
+            <div class="flex justify-between items-end">
+              <p class="text-xs font-medium text-gray-600">Valor</p>
+              <p class="text-lg font-bold" [class]="item.entrada_saida === 0 ? 'text-emerald-600' : 'text-red-600'">
+                {{ formatValor(item.valor) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="fluxo().length === 0" class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200 p-16 text-center">
+        <div class="flex justify-center mb-4">
+          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="text-lg text-gray-700 font-medium">Nenhum registro encontrado</p>
+        <p class="text-gray-600 mt-2">Ajuste os filtros para visualizar seus dados.</p>
+      </div>
+
+      <!-- Status Message -->
+      <div *ngIf="statusMessage()" class="mt-6 px-6 py-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm font-medium">
+        {{ statusMessage() }}
       </div>
     </div>
-
-    <div class="status-message">{{ statusMessage() }}</div>
   </section>
 </main>

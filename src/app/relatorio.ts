@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MenuComponent } from './menu';
 
 interface FluxoEntry {
   fluxo_id: number;
@@ -23,7 +24,7 @@ interface ChartData {
   selector: 'app-relatorio',
   templateUrl: './relatorio.html',
   styleUrl: './relatorio.css',
-  imports: [CommonModule],
+  imports: [CommonModule, MenuComponent],
 })
 export class RelatorioComponent implements OnInit {
   private router = inject(Router);
@@ -127,7 +128,6 @@ export class RelatorioComponent implements OnInit {
   protected goToExtrato() {
     this.router.navigate(['/']);
   }
-
   protected generateColors(count: number): string[] {
     const baseColors = [
       '#68BA7F',
