@@ -53,7 +53,7 @@ export class RelatorioComponent implements OnInit {
     const grouped: Record<string, number> = {};
 
     data.forEach((item) => {
-      const key = item.descricao;
+      const key = item.descricao.toUpperCase();
       grouped[key] = (grouped[key] || 0) + item.valor;
     });
 
