@@ -41,7 +41,9 @@ app.use(
     },
   }),
 );
-const angularApp = new AngularNodeAppEngine();
+const angularApp = new AngularNodeAppEngine({
+  trustProxyHeaders: true,
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.

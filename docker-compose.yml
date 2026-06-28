@@ -1,0 +1,12 @@
+services:
+  planejamentoja:
+    build: .
+    container_name: planejamentoja
+
+    ports:
+      - "4000:4000"
+
+    env_file:
+      - .env
+
+    restart: unless-stopped
