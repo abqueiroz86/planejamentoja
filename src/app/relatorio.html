@@ -9,12 +9,12 @@
       <div class="mb-8">
         <div class="mb-6">
           <h1 id="relatorio-title" class="text-3xl sm:text-4xl font-bold text-gray-900">
-            Relatório de Movimentações
+            Relatórios e Análise
           </h1>
         </div>
         
         <p class="text-gray-600 text-base leading-relaxed">
-          Visualize um resumo de suas movimentações agrupadas por descrição com gráfico interativo.
+          Monitore o desempenho do seu planejamento financeiro com gráficos interativos e resumos mensais.
         </p>
       </div>
 
@@ -45,6 +45,7 @@
               id="filter-mes-ano"
               type="month"
               [value]="filterMesAno()"
+              (input)="filterMesAno.set($any($event.target).value); applyFilters()"
               (change)="filterMesAno.set($any($event.target).value); applyFilters()"
               class="w-full px-4 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
             />
@@ -66,8 +67,42 @@
         </div>
       </div>
 
-      <!-- Content Section -->
-      <div *ngIf="chartData().length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Tabs Navigation -->
+      <div class="mb-8 border-b border-gray-200">
+        <nav class="flex flex-wrap -mb-px gap-2" aria-label="Abas de relatórios">
+          <button
+            (click)="activeTab.set('description')"
+            [class]="activeTab() === 'description' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="py-3 px-4 text-sm font-semibold border-b-2 transition-all duration-200 cursor-pointer"
+          >
+            Resumo por Descrição
+          </button>
+          <button
+            (click)="activeTab.set('cashflow')"
+            [class]="activeTab() === 'cashflow' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="py-3 px-4 text-sm font-semibold border-b-2 transition-all duration-200 cursor-pointer"
+          >
+            Fluxo Mensal (Entradas vs Saídas)
+          </button>
+          <button
+            (click)="activeTab.set('balance')"
+            [class]="activeTab() === 'balance' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="py-3 px-4 text-sm font-semibold border-b-2 transition-all duration-200 cursor-pointer"
+          >
+            Evolução do Saldo
+          </button>
+          <button
+            (click)="activeTab.set('category')"
+            [class]="activeTab() === 'category' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="py-3 px-4 text-sm font-semibold border-b-2 transition-all duration-200 cursor-pointer"
+          >
+            Alocação por Categoria
+          </button>
+        </nav>
+      </div>
+
+      <!-- Report 1: Resumo por Descrição (Original) -->
+      <div *ngIf="chartData().length > 0 && activeTab() === 'description'" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 animate-fade-in">
         <!-- Chart Container -->
         <div class="lg:col-span-1 bg-white rounded-2xl border border-gray-200 p-8 shadow-sm flex items-center justify-center">
           <svg class="pie-chart w-full max-w-xs h-auto" viewBox="0 0 200 200">
@@ -83,7 +118,7 @@
                 <text
                   [attr.x]="getLabelPosition(item.startAngle, item.endAngle).x"
                   [attr.y]="getLabelPosition(item.startAngle, item.endAngle).y - 8"
-                  class="slice-percentage text-xs font-bold fill-white"
+                  class="slice-percentage text-[10px] font-bold fill-white"
                   text-anchor="middle"
                 >
                   {{ item.percentage.toFixed(0) }}%
@@ -91,7 +126,7 @@
                 <text
                   [attr.x]="getLabelPosition(item.startAngle, item.endAngle).x"
                   [attr.y]="getLabelPosition(item.startAngle, item.endAngle).y + 8"
-                  class="slice-label text-xs fill-white font-semibold"
+                  class="slice-label text-[7px] fill-white font-semibold"
                   text-anchor="middle"
                 >
                   {{ item.label.length > 12 ? (item.label | slice:0:12) + '...' : item.label }}
@@ -120,6 +155,212 @@
               <div class="flex-grow">
                 <p class="font-semibold text-gray-900">{{ item.label }}</p>
                 <p class="text-sm text-gray-600">{{ item.percentage.toFixed(1) }}% do total</p>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-gray-900">{{ formatValor(item.value) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report 2: Fluxo de Caixa Mensal (Entradas vs. Saídas) -->
+      <div *ngIf="monthlyCashFlow().length > 0 && activeTab() === 'cashflow'" class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm mb-8 animate-fade-in">
+        <div class="mb-6 flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Entradas vs. Saídas (Últimos 6 meses)</h3>
+            <p class="text-gray-600 text-sm mt-1">Comparação direta dos totais recebidos e gastos mês a mês.</p>
+          </div>
+          <div class="flex items-center gap-4 text-sm font-semibold">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+              <span class="text-gray-700">Entradas</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <span class="text-gray-700">Saídas</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <div class="min-w-[500px] h-[320px] flex items-end">
+            <svg viewBox="0 0 600 300" class="w-full h-full">
+              <!-- Grid Lines -->
+              <line x1="50" y1="50" x2="550" y2="50" stroke="#f9fafb" stroke-width="1" />
+              <line x1="50" y1="116" x2="550" y2="116" stroke="#f3f4f6" stroke-width="1" />
+              <line x1="50" y1="183" x2="550" y2="183" stroke="#f3f4f6" stroke-width="1" />
+              <line x1="50" y1="250" x2="550" y2="250" stroke="#d1d5db" stroke-width="1.5" />
+
+              <!-- Render Columns -->
+              <g *ngFor="let item of monthlyCashFlow(); let i = index">
+                <!-- Income Bar -->
+                <rect
+                  [attr.x]="65 + i * 80"
+                  [attr.y]="250 - (item.incomeHeightPercent * 2)"
+                  width="24"
+                  [attr.height]="item.incomeHeightPercent * 2"
+                  fill="#10b981"
+                  rx="4"
+                  class="transition-all duration-300 hover:opacity-90 cursor-pointer"
+                >
+                  <title>Entradas: {{ formatValor(item.income) }}</title>
+                </rect>
+                <!-- Income label -->
+                <text
+                  *ngIf="item.income > 0"
+                  [attr.x]="77 + i * 80"
+                  [attr.y]="243 - (item.incomeHeightPercent * 2)"
+                  class="text-[9px] fill-emerald-700 font-bold"
+                  text-anchor="middle"
+                >
+                  {{ item.income >= 1000 ? (item.income / 1000).toFixed(1) + 'k' : item.income.toFixed(0) }}
+                </text>
+
+                <!-- Expense Bar -->
+                <rect
+                  [attr.x]="93 + i * 80"
+                  [attr.y]="250 - (item.expenseHeightPercent * 2)"
+                  width="24"
+                  [attr.height]="item.expenseHeightPercent * 2"
+                  fill="#ef4444"
+                  rx="4"
+                  class="transition-all duration-300 hover:opacity-90 cursor-pointer"
+                >
+                  <title>Saídas: {{ formatValor(item.expense) }}</title>
+                </rect>
+                <!-- Expense label -->
+                <text
+                  *ngIf="item.expense > 0"
+                  [attr.x]="105 + i * 80"
+                  [attr.y]="243 - (item.expenseHeightPercent * 2)"
+                  class="text-[9px] fill-red-700 font-bold"
+                  text-anchor="middle"
+                >
+                  {{ item.expense >= 1000 ? (item.expense / 1000).toFixed(1) + 'k' : item.expense.toFixed(0) }}
+                </text>
+
+                <!-- Month Label -->
+                <text
+                  [attr.x]="91 + i * 80"
+                  y="275"
+                  class="text-xs fill-gray-500 font-semibold"
+                  text-anchor="middle"
+                >
+                  {{ item.label }}
+                </text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report 3: Evolução de Saldo (Histórico Acumulado) -->
+      <div *ngIf="balanceEvolution().length > 0 && activeTab() === 'balance'" class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm mb-8 animate-fade-in">
+        <div class="mb-6">
+          <h3 class="text-xl font-bold text-gray-900">Evolução do Saldo Acumulado</h3>
+          <p class="text-gray-600 text-sm mt-1">Trajetória do saldo remanescente acumulado ao final de cada mês.</p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <div class="min-w-[500px] h-[320px] flex items-end">
+            <svg viewBox="0 0 600 300" class="w-full h-full">
+              <!-- Grid Lines -->
+              <line x1="50" y1="50" x2="550" y2="50" stroke="#f9fafb" stroke-width="1" />
+              <line x1="50" y1="140" x2="550" y2="140" stroke="#f3f4f6" stroke-width="1" />
+              <line x1="50" y1="230" x2="550" y2="230" stroke="#d1d5db" stroke-width="1.5" />
+
+              <!-- Area Under Line -->
+              <path [attr.d]="areaPath" fill="url(#balance-gradient)" opacity="0.1" />
+
+              <!-- Main Line -->
+              <path [attr.d]="linePath" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+              <!-- Dots and text labels -->
+              <g *ngFor="let item of balanceEvolution()">
+                <circle
+                  [attr.cx]="item.x"
+                  [attr.cy]="item.y"
+                  r="5"
+                  fill="#4f46e5"
+                  stroke="#ffffff"
+                  stroke-width="2"
+                  class="transition-all duration-200 hover:r-7 cursor-pointer"
+                >
+                  <title>Saldo: {{ formatValor(item.balance) }}</title>
+                </circle>
+                <text
+                  [attr.x]="item.x"
+                  [attr.y]="item.y - 12"
+                  class="text-[10px] font-bold fill-indigo-900"
+                  text-anchor="middle"
+                >
+                  {{ formatValor(item.balance) }}
+                </text>
+                <text
+                  [attr.x]="item.x"
+                  y="255"
+                  class="text-xs font-semibold fill-gray-500"
+                  text-anchor="middle"
+                >
+                  {{ item.label }}
+                </text>
+              </g>
+
+              <!-- Gradients definitions -->
+              <defs>
+                <linearGradient id="balance-gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#4f46e5" />
+                  <stop offset="100%" stop-color="#4f46e5" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report 4: Distribuição por Categoria -->
+      <div *ngIf="categoryData().length > 0 && activeTab() === 'category'" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 animate-fade-in">
+        <!-- Doughnut Chart Container -->
+        <div class="lg:col-span-1 bg-white rounded-2xl border border-gray-200 p-8 shadow-sm flex flex-col items-center justify-center">
+          <svg class="pie-chart w-full max-w-xs h-auto" viewBox="0 0 200 200">
+            <!-- Base track circle for doughnut style -->
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#f3f4f6" stroke-width="20" />
+            
+            <g *ngFor="let item of categoryData()">
+              <path
+                [attr.d]="getArcPath(100, 100, 80, item.startAngle, item.endAngle)"
+                [attr.fill]="item.color"
+                class="pie-slice transition-opacity duration-300 hover:opacity-90 cursor-pointer"
+                stroke="#ffffff"
+                stroke-width="1.5"
+              >
+                <title>{{ item.label }}: {{ formatValor(item.value) }}</title>
+              </path>
+            </g>
+            <!-- Center white mask to make it a doughnut chart -->
+            <circle cx="100" cy="100" r="55" fill="#ffffff" />
+            <!-- Text in center -->
+            <text x="100" y="95" text-anchor="middle" class="text-[9px] fill-gray-500 uppercase tracking-wider font-bold">Total Despesas</text>
+            <text x="100" y="115" text-anchor="middle" class="text-xs font-black fill-gray-900">{{ formatValor(totalOutflow()) }}</text>
+          </svg>
+        </div>
+
+        <!-- Legend List -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-900">Alocação de Gastos e Investimentos</h3>
+            <p class="text-gray-600 text-sm mt-1">Divisão inteligente baseada nas descrições de despesas essenciais, variáveis e aportes.</p>
+          </div>
+
+          <div class="space-y-4">
+            <div *ngFor="let item of categoryData()" class="p-4 rounded-xl border border-gray-200 flex items-center justify-between gap-4 transition-colors hover:bg-gray-50/50">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-full" [style.background-color]="item.color"></div>
+                <div>
+                  <p class="font-bold text-gray-900">{{ item.label }}</p>
+                  <p class="text-xs text-gray-500">{{ item.percentage.toFixed(1) }}% do total de saídas</p>
+                </div>
               </div>
               <div class="text-right">
                 <p class="font-bold text-gray-900">{{ formatValor(item.value) }}</p>

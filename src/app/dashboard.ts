@@ -44,6 +44,13 @@ export class DashboardComponent implements OnInit {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem('userEmail');
+          }
+          this.router.navigate(['/']);
+          return;
+        }
         this.statusMessage.set(data?.error ?? 'Falha ao carregar os dados.');
         return;
       }

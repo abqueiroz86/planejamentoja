@@ -24,7 +24,7 @@ export class ExtratoComponent implements OnInit {
   protected readonly statusMessage = signal('');
   protected readonly fluxo = signal<FluxoEntry[]>([]);
   protected readonly filterEntradaSaida = signal('');
-  protected readonly filterData = signal('');
+  protected readonly filterMesAno = signal('');
   protected readonly filterDescricao = signal('');
 
   // Modal CRUD State
@@ -67,7 +67,7 @@ export class ExtratoComponent implements OnInit {
   protected async loadFluxo() {
     console.log('Loading fluxo with filters:', {
       entrada_saida: this.filterEntradaSaida(),
-      data: this.filterData(),
+      mes_ano: this.filterMesAno(),
       descricao: this.filterDescricao(),
     });
     this.statusMessage.set('');
@@ -76,8 +76,8 @@ export class ExtratoComponent implements OnInit {
     if (this.filterEntradaSaida()) {
       params.set('entrada_saida', this.filterEntradaSaida());
     }
-    if (this.filterData()) {
-      params.set('data', this.filterData());
+    if (this.filterMesAno()) {
+      params.set('mes_ano', this.filterMesAno());
     }
     if (this.filterDescricao()) {
       params.set('descricao', this.filterDescricao());
@@ -89,6 +89,13 @@ export class ExtratoComponent implements OnInit {
 
       console.log('Extrato response:', data);
       if (!response.ok) {
+        if (response.status === 401) {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem('userEmail');
+          }
+          this.router.navigate(['/']);
+          return;
+        }
         this.statusMessage.set(data?.error ?? 'Falha ao carregar o extrato.');
         return;
       }
@@ -177,6 +184,13 @@ export class ExtratoComponent implements OnInit {
 
       const resData = await response.json();
       if (!response.ok) {
+        if (response.status === 401) {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem('userEmail');
+          }
+          this.router.navigate(['/']);
+          return;
+        }
         this.statusMessage.set(resData?.error ?? 'Erro ao salvar o lançamento.');
         return;
       }
@@ -202,6 +216,13 @@ export class ExtratoComponent implements OnInit {
 
       const resData = await response.json();
       if (!response.ok) {
+        if (response.status === 401) {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem('userEmail');
+          }
+          this.router.navigate(['/']);
+          return;
+        }
         this.statusMessage.set(resData?.error ?? 'Erro ao excluir o lançamento.');
         return;
       }

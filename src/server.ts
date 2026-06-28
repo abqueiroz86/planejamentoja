@@ -128,15 +128,38 @@ app.get('/api/fluxo', async (req: SessionRequest, res) => {
     filters += ` AND "data" = $${counter}`;
     values.push(data);
     counter += 1;
-  } else if (mesAno && /^\d{4}-\d{2}$/.test(mesAno)) {
-    const [year, month] = mesAno.split('-').map(Number);
-    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-    
-    filters += ` AND "data" >= $${counter} AND "data" <= $${counter + 1}`;
-    values.push(startDate, endDate);
-    counter += 2;
+  } else if (mesAno) {
+    let year: number | null = null;
+    let month: number | null = null;
+
+    // Supports YYYY-MM (standard HTML5 month input)
+    if (/^\d{4}-\d{2}$/.test(mesAno)) {
+      const parts = mesAno.split('-');
+      year = Number(parts[0]);
+      month = Number(parts[1]);
+    }
+    // Supports MM/YYYY or MM-YYYY (common manual input)
+    else if (/^\d{2}[/-]\d{4}$/.test(mesAno)) {
+      const parts = mesAno.split(/[/-]/);
+      month = Number(parts[0]);
+      year = Number(parts[1]);
+    }
+    // Supports YYYY/MM
+    else if (/^\d{4}\/\d{2}$/.test(mesAno)) {
+      const parts = mesAno.split('/');
+      year = Number(parts[0]);
+      month = Number(parts[1]);
+    }
+
+    if (year !== null && month !== null && month >= 1 && month <= 12) {
+      const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+      const lastDay = new Date(year, month, 0).getDate();
+      const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      
+      filters += ` AND "data" >= $${counter} AND "data" <= $${counter + 1}`;
+      values.push(startDate, endDate);
+      counter += 2;
+    }
   }
 
   if (descricao) {
