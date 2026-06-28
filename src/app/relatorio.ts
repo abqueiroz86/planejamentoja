@@ -39,6 +39,8 @@ export class RelatorioComponent implements OnInit {
   protected readonly highlightedLegend = signal<string | null>(null);
   protected readonly activeTab = signal<'description' | 'cashflow' | 'balance' | 'category'>('description');
 
+  protected readonly hideValues = signal(false);
+
   ngOnInit() {
     if (typeof sessionStorage !== 'undefined') {
       const userEmail = sessionStorage.getItem('userEmail');
@@ -47,7 +49,14 @@ export class RelatorioComponent implements OnInit {
         return;
       }
       this.email.set(userEmail);
+      this.hideValues.set(sessionStorage.getItem('hideValues') === 'true');
       this.loadRelatorio();
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('privacyToggled', () => {
+        this.hideValues.set(sessionStorage.getItem('hideValues') === 'true');
+      });
     }
   }
 
@@ -419,6 +428,13 @@ export class RelatorioComponent implements OnInit {
 
   protected formatValor(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  protected displayValor(value: number) {
+    if (this.hideValues()) {
+      return 'R$ •••••';
+    }
+    return this.formatValor(value);
   }
 
   protected toggleLegendHighlight(label: string) {

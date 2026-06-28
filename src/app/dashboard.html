@@ -34,7 +34,7 @@
             <div>
               <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Saldo Geral</p>
               <p class="text-2xl font-extrabold mt-1 transition-colors" [class]="totals().saldo >= 0 ? 'text-emerald-600' : 'text-red-600'">
-                {{ formatValor(totals().saldo) }}
+                {{ displayValor(totals().saldo) }}
               </p>
             </div>
             <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
@@ -57,7 +57,7 @@
             <div>
               <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Receitas (Entradas)</p>
               <p class="text-2xl font-extrabold mt-1 text-emerald-600">
-                {{ formatValor(totals().entradas) }}
+                {{ displayValor(totals().entradas) }}
               </p>
             </div>
             <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100">
@@ -75,7 +75,7 @@
             <div>
               <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Despesas (Saídas)</p>
               <p class="text-2xl font-extrabold mt-1 text-red-600">
-                {{ formatValor(totals().saidas) }}
+                {{ displayValor(totals().saidas) }}
               </p>
             </div>
             <div class="p-3 rounded-xl bg-red-50 border border-red-100">
@@ -93,7 +93,7 @@
             <div>
               <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Taxa de Poupança</p>
               <p class="text-2xl font-extrabold mt-1 text-indigo-600">
-                {{ totals().taxaPoupanca.toFixed(1) }}%
+                {{ hideValues() ? '••%' : totals().taxaPoupanca.toFixed(1) + '%' }}
               </p>
             </div>
             <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-100">
@@ -137,7 +137,7 @@
                   </div>
                 </div>
                 <p class="text-sm font-bold" [class]="item.entrada_saida === 0 ? 'text-emerald-600' : 'text-red-600'">
-                  {{ item.entrada_saida === 0 ? '+' : '-' }} {{ formatValor(item.valor) }}
+                  {{ displayValorComSinal(item) }}
                 </p>
               </div>
             </div>
@@ -163,8 +163,8 @@
               <div class="flex justify-between text-sm">
                 <span class="font-semibold text-gray-700">{{ item.label }}</span>
                 <div class="text-right">
-                  <span class="font-bold text-gray-900">{{ formatValor(item.value) }}</span>
-                  <span class="text-xs text-gray-500 ml-1">({{ item.percentage.toFixed(1) }}%)</span>
+                  <span class="font-bold text-gray-900">{{ displayValor(item.value) }}</span>
+                  <span class="text-xs text-gray-500 ml-1">({{ hideValues() ? '••%' : item.percentage.toFixed(1) + '%' }})</span>
                 </div>
               </div>
               <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">

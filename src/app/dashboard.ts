@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit {
   protected readonly email = signal('');
   protected readonly statusMessage = signal('');
   protected readonly fluxo = signal<FluxoEntry[]>([]);
+  protected readonly hideValues = signal(false);
 
   ngOnInit() {
     if (typeof sessionStorage !== 'undefined') {
@@ -33,7 +34,14 @@ export class DashboardComponent implements OnInit {
         return;
       }
       this.email.set(userEmail);
+      this.hideValues.set(sessionStorage.getItem('hideValues') === 'true');
       this.loadDashboardData();
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('privacyToggled', () => {
+        this.hideValues.set(sessionStorage.getItem('hideValues') === 'true');
+      });
     }
   }
 
@@ -116,6 +124,21 @@ export class DashboardComponent implements OnInit {
 
   protected formatValor(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  protected displayValor(value: number) {
+    if (this.hideValues()) {
+      return 'R$ •••••';
+    }
+    return this.formatValor(value);
+  }
+
+  protected displayValorComSinal(item: FluxoEntry) {
+    if (this.hideValues()) {
+      return 'R$ •••••';
+    }
+    const sinal = item.entrada_saida === 0 ? '+' : '-';
+    return `${sinal} ${this.formatValor(item.valor)}`;
   }
 
   protected formatDate(value: string) {

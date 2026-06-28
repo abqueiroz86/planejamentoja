@@ -38,6 +38,8 @@ export class ExtratoComponent implements OnInit {
   protected readonly formValor = signal<number | null>(null);
   protected readonly formDescricao = signal<string>('');
 
+  protected readonly hideValues = signal(false);
+
   ngOnInit() {
     if (typeof sessionStorage !== 'undefined') {
       const userEmail = sessionStorage.getItem('userEmail');
@@ -45,7 +47,14 @@ export class ExtratoComponent implements OnInit {
         this.router.navigate(['/']);
         return;
       }
+      this.hideValues.set(sessionStorage.getItem('hideValues') === 'true');
       this.loadFluxo();
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('privacyToggled', () => {
+        this.hideValues.set(sessionStorage.getItem('hideValues') === 'true');
+      });
     }
   }
 
@@ -115,6 +124,21 @@ export class ExtratoComponent implements OnInit {
 
   protected formatValor(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  protected displayValor(value: number) {
+    if (this.hideValues()) {
+      return 'R$ •••••';
+    }
+    return this.formatValor(value);
+  }
+
+  protected displayValorComSinal(item: FluxoEntry) {
+    if (this.hideValues()) {
+      return 'R$ •••••';
+    }
+    const sinal = item.entrada_saida === 0 ? '+' : '-';
+    return `${sinal} ${this.formatValor(item.valor)}`;
   }
 
   // Modal actions
