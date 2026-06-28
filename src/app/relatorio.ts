@@ -39,13 +39,15 @@ export class RelatorioComponent implements OnInit {
   protected readonly highlightedLegend = signal<string | null>(null);
 
   ngOnInit() {
-    const userEmail = sessionStorage.getItem('userEmail');
-    if (!userEmail) {
-      this.router.navigate(['/']);
-      return;
+    if (typeof sessionStorage !== 'undefined') {
+      const userEmail = sessionStorage.getItem('userEmail');
+      if (!userEmail) {
+        this.router.navigate(['/']);
+        return;
+      }
+      this.email.set(userEmail);
+      this.loadRelatorio();
     }
-    this.email.set(userEmail);
-    this.loadRelatorio();
   }
 
   protected chartData = computed(() => {

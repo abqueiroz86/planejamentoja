@@ -111,6 +111,7 @@ app.get('/api/fluxo', async (req: SessionRequest, res) => {
 
   const entradaSaida = req.query['entrada_saida'] as string | undefined;
   const data = req.query['data'] as string | undefined;
+  const mesAno = req.query['mes_ano'] as string | undefined;
   const descricao = req.query['descricao'] as string | undefined;
 
   const values: Array<string | number> = [usuarioId];
@@ -127,6 +128,15 @@ app.get('/api/fluxo', async (req: SessionRequest, res) => {
     filters += ` AND "data" = $${counter}`;
     values.push(data);
     counter += 1;
+  } else if (mesAno && /^\d{4}-\d{2}$/.test(mesAno)) {
+    const [year, month] = mesAno.split('-').map(Number);
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    
+    filters += ` AND "data" >= $${counter} AND "data" <= $${counter + 1}`;
+    values.push(startDate, endDate);
+    counter += 2;
   }
 
   if (descricao) {
@@ -152,6 +162,132 @@ app.get('/api/fluxo', async (req: SessionRequest, res) => {
   } catch (error) {
     console.error('Erro ao consultar fluxo:', error);
     return res.status(500).json({ error: 'Erro interno ao buscar o extrato.' });
+  } finally {
+    await client.end();
+  }
+});
+
+app.post('/api/fluxo', async (req: SessionRequest, res) => {
+  const usuarioId = req.session?.usuarioId;
+
+  if (!usuarioId) {
+    return res.status(401).json({ error: 'Sessão não autenticada.' });
+  }
+
+  const { entrada_saida, data, valor, descricao } = req.body as {
+    entrada_saida?: number;
+    data?: string;
+    valor?: number;
+    descricao?: string;
+  };
+
+  if (entrada_saida === undefined || !data || valor === undefined || !descricao) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios (tipo, data, valor, descrição).' });
+  }
+
+  const client = new Client({ connectionString: databaseUrl });
+
+  try {
+    await client.connect();
+
+    const query = `
+      INSERT INTO fluxo (usuario_id, entrada_saida, "data", valor, descricao)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING fluxo_id
+    `;
+
+    const result = await client.query(query, [usuarioId, Number(entrada_saida), data, Number(valor), descricao]);
+    return res.json({ ok: true, fluxoId: result.rows[0].fluxo_id });
+  } catch (error) {
+    console.error('Erro ao criar fluxo:', error);
+    return res.status(500).json({ error: 'Erro interno ao salvar o lançamento.' });
+  } finally {
+    await client.end();
+  }
+});
+
+app.put('/api/fluxo/:id', async (req: SessionRequest, res) => {
+  const usuarioId = req.session?.usuarioId;
+
+  if (!usuarioId) {
+    return res.status(401).json({ error: 'Sessão não autenticada.' });
+  }
+
+  const fluxoId = Number(req.params['id']);
+  const { entrada_saida, data, valor, descricao } = req.body as {
+    entrada_saida?: number;
+    data?: string;
+    valor?: number;
+    descricao?: string;
+  };
+
+  if (Number.isNaN(fluxoId)) {
+    return res.status(400).json({ error: 'ID inválido.' });
+  }
+
+  if (entrada_saida === undefined || !data || valor === undefined || !descricao) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios (tipo, data, valor, descrição).' });
+  }
+
+  const client = new Client({ connectionString: databaseUrl });
+
+  try {
+    await client.connect();
+
+    const query = `
+      UPDATE fluxo
+      SET entrada_saida = $1, "data" = $2, valor = $3, descricao = $4
+      WHERE fluxo_id = $5 AND usuario_id = $6
+    `;
+
+    const result = await client.query(query, [Number(entrada_saida), data, Number(valor), descricao, fluxoId, usuarioId]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Lançamento não encontrado ou não pertence a este usuário.' });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Erro ao atualizar fluxo:', error);
+    return res.status(500).json({ error: 'Erro interno ao atualizar o lançamento.' });
+  } finally {
+    await client.end();
+  }
+});
+
+app.delete('/api/fluxo/:id', async (req: SessionRequest, res) => {
+  const usuarioId = req.session?.usuarioId;
+
+  if (!usuarioId) {
+    return res.status(401).json({ error: 'Sessão não autenticada.' });
+  }
+
+  const fluxoId = Number(req.params['id']);
+
+  if (Number.isNaN(fluxoId)) {
+    return res.status(400).json({ error: 'ID inválido.' });
+  }
+
+  const client = new Client({ connectionString: databaseUrl });
+
+  try {
+    await client.connect();
+
+    const query = `
+      DELETE FROM fluxo
+      WHERE fluxo_id = $1 AND usuario_id = $2
+    `;
+
+    const result = await client.query(query, [fluxoId, usuarioId]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Lançamento não encontrado ou não pertence a este usuário.' });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Erro ao excluir fluxo:', error);
+    return res.status(500).json({ error: 'Erro interno ao excluir o lançamento.' });
   } finally {
     await client.end();
   }

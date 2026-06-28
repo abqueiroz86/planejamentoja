@@ -188,7 +188,7 @@ export class MenuComponent {
 
   protected goHome() {
     this.closeMobileMenu();
-    this.router.navigate(['/']);
+    this.router.navigate(['/dashboard']);
   }
 
   protected goToExtrato() {

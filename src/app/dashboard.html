@@ -1,0 +1,188 @@
+<main class="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-emerald-900/10">
+  <!-- Menu Component -->
+  <app-menu></app-menu>
+
+  <!-- Main Content -->
+  <section class="py-8 px-4 sm:px-6 lg:px-8" aria-labelledby="dashboard-title">
+    <div class="mx-auto max-w-7xl">
+      <!-- Header Section -->
+      <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 id="dashboard-title" class="text-3xl sm:text-4xl font-bold text-gray-900">
+            Painel Financeiro
+          </h1>
+          <p class="text-gray-600 text-sm mt-1">
+            Olá, <strong class="text-gray-900">{{ email() }}</strong>! Acompanhe o resumo da sua saúde financeira.
+          </p>
+        </div>
+        <button
+          (click)="goToExtrato()"
+          class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm hover:shadow transition-all duration-200"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Novo Lançamento
+        </button>
+      </div>
+
+      <!-- Financial Status Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Saldo Geral -->
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-emerald-200">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Saldo Geral</p>
+              <p class="text-2xl font-extrabold mt-1 transition-colors" [class]="totals().saldo >= 0 ? 'text-emerald-600' : 'text-red-600'">
+                {{ formatValor(totals().saldo) }}
+              </p>
+            </div>
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+              <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+              </svg>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1 text-xs font-semibold" [class]="totals().saldo >= 0 ? 'text-emerald-700' : 'text-red-700'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="totals().saldo >= 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6'"></path>
+            </svg>
+            {{ totals().saldo >= 0 ? 'Saldo Positivo' : 'Saldo Negativo' }}
+          </span>
+        </div>
+
+        <!-- Receitas -->
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-emerald-200">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Receitas (Entradas)</p>
+              <p class="text-2xl font-extrabold mt-1 text-emerald-600">
+                {{ formatValor(totals().entradas) }}
+              </p>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z"></path>
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs text-gray-500 font-semibold">Total recebido</span>
+        </div>
+
+        <!-- Despesas -->
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-emerald-200">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Despesas (Saídas)</p>
+              <p class="text-2xl font-extrabold mt-1 text-red-600">
+                {{ formatValor(totals().saidas) }}
+              </p>
+            </div>
+            <div class="p-3 rounded-xl bg-red-50 border border-red-100">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13l-3 3m0 0l-3-3m3 3V8m0-5a9 9 0 110 18 9 9 0 010-18z"></path>
+              </svg>
+            </div>
+          </div>
+          <span class="text-xs text-gray-500 font-semibold">Total gasto</span>
+        </div>
+
+        <!-- Taxa de Poupança -->
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:border-emerald-200">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Taxa de Poupança</p>
+              <p class="text-2xl font-extrabold mt-1 text-indigo-600">
+                {{ totals().taxaPoupanca.toFixed(1) }}%
+              </p>
+            </div>
+            <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-100">
+              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1 overflow-hidden">
+            <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500" [style.width.%]="totals().taxaPoupanca > 0 ? (totals().taxaPoupanca > 100 ? 100 : totals().taxaPoupanca) : 0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Cards Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Transactions -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-bold text-gray-900">Últimos Lançamentos</h2>
+              <button
+                (click)="goToExtrato()"
+                class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+              >
+                Ver tudo
+              </button>
+            </div>
+
+            <div *ngIf="recentTransactions().length > 0" class="space-y-4">
+              <div *ngFor="let item of recentTransactions()" class="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:bg-gray-50/50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div [class]="item.entrada_saida === 0 ? 'p-2 rounded-lg bg-emerald-100 text-emerald-800' : 'p-2 rounded-lg bg-red-100 text-red-800'">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.entrada_saida === 0 ? 'M9 11l3-3m0 0l3 3m-3-3v8' : 'M15 13l-3 3m0 0l-3-3m3 3V8'"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-gray-900">{{ item.descricao }}</p>
+                    <p class="text-xs text-gray-500">{{ formatDate(item.data) }}</p>
+                  </div>
+                </div>
+                <p class="text-sm font-bold" [class]="item.entrada_saida === 0 ? 'text-emerald-600' : 'text-red-600'">
+                  {{ item.entrada_saida === 0 ? '+' : '-' }} {{ formatValor(item.valor) }}
+                </p>
+              </div>
+            </div>
+
+            <div *ngIf="recentTransactions().length === 0" class="py-8 text-center text-gray-500">
+              <p>Nenhuma transação encontrada.</p>
+              <button
+                (click)="goToExtrato()"
+                class="mt-2 text-sm font-semibold text-emerald-600 hover:underline"
+              >
+                Criar primeiro lançamento
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Expenses Breakdown -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+          <h2 class="text-lg font-bold text-gray-900 mb-6">Distribuição de Despesas</h2>
+
+          <div *ngIf="topExpenses().length > 0" class="space-y-5">
+            <div *ngFor="let item of topExpenses()" class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="font-semibold text-gray-700">{{ item.label }}</span>
+                <div class="text-right">
+                  <span class="font-bold text-gray-900">{{ formatValor(item.value) }}</span>
+                  <span class="text-xs text-gray-500 ml-1">({{ item.percentage.toFixed(1) }}%)</span>
+                </div>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-emerald-600 h-2 rounded-full transition-all duration-500" [style.width.%]="item.percentage"></div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="topExpenses().length === 0" class="py-12 text-center text-gray-500">
+            <p>Nenhuma despesa registrada para detalhar.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Message -->
+      <div *ngIf="statusMessage()" class="mt-6 px-6 py-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm font-medium">
+        {{ statusMessage() }}
+      </div>
+    </div>
+  </section>
+</main>

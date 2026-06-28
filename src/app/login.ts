@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from "@angular/common";
 import { Router } from "@angular/router";
 
@@ -82,13 +82,24 @@ import { Router } from "@angular/router";
   imports: [CommonModule],
 })
 
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private router = inject(Router);
 
   protected readonly title = signal('Planejamento Já!');
   protected readonly statusMessage = signal('');
   protected readonly loggedIn = signal(false);
   protected readonly email = signal('');
+  
+  ngOnInit() {
+    if (typeof sessionStorage !== 'undefined') {
+      const userEmail = sessionStorage.getItem('userEmail');
+      if (userEmail) {
+        this.email.set(userEmail);
+        this.loggedIn.set(true);
+        this.router.navigate(['/dashboard']);
+      }
+    }
+  }
   
 
   protected async login(event: Event, email: string, password: string) {
@@ -119,8 +130,7 @@ export class LoginComponent {
       this.email.set(data.email);
       this.loggedIn.set(true);
       sessionStorage.setItem('userEmail', data.email);
-    //   await this.loadFluxo();
-      this.router.navigate(['/extrato']);
+      this.router.navigate(['/dashboard']);
 
     } catch (error) {
       console.error(error);
